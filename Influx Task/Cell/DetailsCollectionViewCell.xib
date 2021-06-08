@@ -17,7 +17,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="369" height="116"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QL1-Ve-Mqq">
+                    <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QL1-Ve-Mqq">
                         <rect key="frame" x="5" y="13" width="359" height="98"/>
                         <subviews>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Nbp-8F-OBK">
@@ -37,6 +37,11 @@
                             <constraint firstItem="Nbp-8F-OBK" firstAttribute="leading" secondItem="QL1-Ve-Mqq" secondAttribute="leading" constant="8" id="aAS-Ts-E80"/>
                             <constraint firstAttribute="bottom" secondItem="Nbp-8F-OBK" secondAttribute="bottom" constant="8" id="m8N-dJ-w4j"/>
                         </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="5"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
                     </view>
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="arrowtriangle.up.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="OYK-2a-hQd">
                         <rect key="frame" x="319" y="0.0" width="20" height="16"/>
