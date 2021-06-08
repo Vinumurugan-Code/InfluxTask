@@ -21,5 +21,22 @@ extension String {
         let boundingBox = self.boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: font], context: nil)
         return ceil(boundingBox.height)
     }
+    
+    func removeHTMLcontent() -> String {
+        if !self.isEmpty {
+            let myString = self.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
+            let newString = myString.replacingOccurrences(of: "&[^;]+;", with: "", options: .regularExpression, range: nil)
+            let lastString = newString.trimmingCharacters(in: .whitespacesAndNewlines)
+            return lastString
+        }
+        return String.init()
+    }
 }
 
+extension NSMutableAttributedString {
+    func height(withConstrainedWidth width: CGFloat) -> CGFloat {
+        let rect : CGRect = self.boundingRect(with: CGSize(width: width, height: CGFloat.greatestFiniteMagnitude), options: .usesLineFragmentOrigin, context: nil)
+        let requredSize:CGRect = rect
+        return requredSize.height
+    }
+}

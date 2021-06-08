@@ -1,51 +1,51 @@
 //
 //  APIService.swift
-//  Influx Task
+//  Vinu Notes App
 //
-//  Created by vinumax on 07/06/21.
+//  Created by vinumax on 23/03/21.
 //
 
 import Foundation
 import UIKit
 
-enum HTTPMethod: String {
-    case GET
-    case POST
-}
-
-class APIService: NSObject {
-    
-    static let shared = APIService()
-    
-    let session = URLSession(configuration: .default)
-    
-    func getResponse<T:Decodable>(_ method:HTTPMethod? = .GET,responseType: T.Type, completionHandler: @escaping(Result<T,Error>) -> Void) {
+class APIService {
         
-        var request = URLRequest(url:URL(string:"https://picsum.photos/v2/list?page=1&limit=20")!)
-                                
-        request.httpMethod = method?.rawValue
-            
-        request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+    var urlComponents: URLComponents
+    
+    var currentSearchTag = "nature"
+    
+    init() {
+        urlComponents = URLComponents(string: "https://api.flickr.com/")!
+        urlComponents.queryItems = [
+            URLQueryItem(name: "lang", value: "en-us"),
+            URLQueryItem(name: "format", value: "json"),
+            URLQueryItem(name: "tags", value: currentSearchTag),
+            URLQueryItem(name: "nojsoncallback", value: "1"),
+        ]
+    }
         
-        URLSession.shared.dataTask(with: request) { (data, response, error) in
-            if let data = data {
-                do {
-                    let dataObj = try JSONDecoder().decode(T.self, from: data)
-                    DispatchQueue.main.async {
-                        completionHandler(.success(dataObj))
-                    }
-                } catch {
-                    DispatchQueue.main.async {
-                        completionHandler(.failure(error))
-                    }
+    func getResponse<T:Decodable>(_ path: String,responseType: T.Type, completionHandler: @escaping(Result<T,Error>) -> Void) {
+        
+        urlComponents.path = path
+        
+        let task = URLSession.shared.dataTask(with: urlComponents.url!) { data, response, error in
+            guard error == nil else {
+                return
+            }
+            do {
+                let json = try JSONSerialization.jsonObject(with: data!, options: []) as! [String: Any]
+                let item = try JSONSerialization.data(withJSONObject: json["items"]!, options: [])
+                let decoder = JSONDecoder()
+                let dataObj = try decoder.decode(T.self, from: item)
+                DispatchQueue.main.async {
+                    completionHandler(.success(dataObj))
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completionHandler(.failure(error))
                 }
             }
-        }.resume()
+        }
+        task.resume()
     }
-}
-
-
-
-struct Cache {
-   static let imgCache =  NSCache<NSString, UIImage>()
 }

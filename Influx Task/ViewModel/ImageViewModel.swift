@@ -13,16 +13,16 @@ protocol ImageViewModelDelegate : NSObject {
 
 class ImageViewModel: NSObject {
 
-    var imageDetailsArr = [ImageDetails]()
+    var imageDetailsArr = [FlickrInfo]()
     
     var idelegate : ImageViewModelDelegate?
     
     func getData(){
-        APIService.shared.getResponse(responseType: [ResponseModel].self) { (result) in
+        APIService().getResponse("/services/feeds/photos_public.gne", responseType: [FlickrMedia].self) { (result) in
             switch result {
             case .success(let data):
                 for info in data {
-                    self.imageDetailsArr.append(ImageDetails(name: info.author, width: info.width, height: info.height, details: info.url, downloadurl: info.download_url, type: .real))
+                    self.imageDetailsArr.append(FlickrInfo(title: info.title, link: info.link, media: info.media, description: info.description, tags: info.tags, type: .real))
                 }
                 self.idelegate?.isResponseSuccess()
             case .failure(_):
@@ -35,7 +35,7 @@ class ImageViewModel: NSObject {
         return imageDetailsArr.count
     }
 
-    func cellForRow(indexPath: IndexPath) -> ImageDetails{
+    func cellForRow(indexPath: IndexPath) -> FlickrInfo{
         return imageDetailsArr[indexPath.row]
     }
 }

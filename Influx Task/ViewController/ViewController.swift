@@ -30,6 +30,19 @@ class ViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.delegate = self
     }
+    
+    func setContent(title:String,desc:String) -> NSMutableAttributedString {
+        let partOne = NSMutableAttributedString(string: title, attributes: [NSAttributedString.Key.foregroundColor: UIColor.white, NSAttributedString.Key.font: UIFont.systemFont(ofSize:15)])
+        let partTwo = NSMutableAttributedString(string: desc, attributes: [NSAttributedString.Key.foregroundColor: UIColor.black, NSAttributedString.Key.font: UIFont.systemFont(ofSize:15)])
+        let combination = NSMutableAttributedString()
+        combination.append(partOne)
+        combination.append(partTwo)
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 3
+        paragraphStyle.alignment = .left
+        combination.addAttribute(NSAttributedString.Key.paragraphStyle, value:paragraphStyle, range:NSMakeRange(0, combination.string.count))
+        return combination
+    }
         
 }
 
@@ -54,16 +67,21 @@ extension ViewController : UICollectionViewDelegate, UICollectionViewDataSource 
         let info = imageVM.cellForRow(indexPath:indexPath)
         if info.type == .real {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImageCollectionViewCell.self.description(), for: indexPath) as! ImageCollectionViewCell
-            cell.mainImageView.sd_setImage(with: URL(string:info.downloadurl ), placeholderImage:nil)
+            cell.mainImageView.sd_imageIndicator = SDWebImageActivityIndicator.gray
+            cell.mainImageView.sd_setImage(with: URL(string:info.media["m"]!), placeholderImage:nil)
             if indexPath == self.currenIndexPath {
-                cell.layer.borderColor = UIColor.blue.cgColor
+                cell.layer.borderColor = UIColor.link.cgColor
             } else {
                 cell.layer.borderColor = UIColor.clear.cgColor
             }
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DetailsCollectionViewCell.self.description(), for: indexPath) as! DetailsCollectionViewCell
-            cell.detailsTxtV.text = "Name: " + info.name + "\n" + "URL: " + info.details + "\n" + "Width: \(info.width)" + "  "  + "Height: \(info.height)"
+            let combination = NSMutableAttributedString()
+            combination.append(setContent(title: "Title: ", desc: info.title))
+            combination.append(setContent(title: "\nLink: ", desc: info.link))
+            combination.append(setContent(title: "\nDescription: ", desc: info.description.removeHTMLcontent()))
+            cell.detailsTxtV.attributedText = combination
             if let index = self.currenIndexPath {
                 cell.leftImage.isHidden = (index.row % 2) == 0
                 cell.rightImage.isHidden = (index.row % 2) == 1
@@ -74,6 +92,7 @@ extension ViewController : UICollectionViewDelegate, UICollectionViewDataSource 
             return cell
         }
     }
+    
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
@@ -93,11 +112,11 @@ extension ViewController : UICollectionViewDelegate, UICollectionViewDataSource 
         var copyImageDetails = info
         copyImageDetails.type = .dummy
         let indexValue = imageVM.imageDetailsArr.firstIndex { (imagedetails1) -> Bool in
-            imagedetails1.name == info.name && imagedetails1.details == info.details && imagedetails1.type == info.type
+            imagedetails1.title == info.title && imagedetails1.link == info.link && imagedetails1.type == info.type
         } ?? 0
         
         if indexValue % 2 == 0 {
-            if indexValue + 2 < imageVM.imageDetailsArr.count {
+            if indexValue + 2 <= imageVM.imageDetailsArr.count {
                 imageVM.imageDetailsArr.insert(copyImageDetails, at: indexValue + 2)
             } else {
                 imageVM.imageDetailsArr.insert(copyImageDetails, at: indexValue + 1)
@@ -107,6 +126,7 @@ extension ViewController : UICollectionViewDelegate, UICollectionViewDataSource 
         }
         self.currenIndexPath = IndexPath.init(row: indexValue, section: 0)
         self.collectionView.reloadData()
+        self.collectionView.scrollToItem(at:self.currenIndexPath!, at: .centeredVertically, animated: true)
         
     }
     
@@ -128,8 +148,13 @@ extension ViewController : CustomizeLayoutDelegate {
         if info.type == .real {
             return CGSize(width: (collectionView.frame.width / 2) - 40, height: (collectionView.frame.width / 2) - 40)
         } else {
-            let height = ("Name: " + info.name + "\n" + "URL: " + info.details + "\n" + "Width: \(info.width)" + "  " + "Height: \(info.height)").height(withConstrainedWidth: (collectionView.frame.width / 2) - 10, font: UIFont.systemFont(ofSize: 15))
-            return CGSize(width: (collectionView.frame.width / 2) - 20, height: height + 40)
+            
+            let combination = NSMutableAttributedString()
+            combination.append(setContent(title: "Title: ", desc: info.title))
+            combination.append(setContent(title: "\nLink: ", desc: info.link))
+            combination.append(setContent(title: "\nDescription: ", desc: info.description.removeHTMLcontent()))
+            let height = combination.height(withConstrainedWidth: collectionView.frame.width - 20)
+            return CGSize(width:collectionView.frame.width - 20, height: height + 65)
         }
     }    
 }

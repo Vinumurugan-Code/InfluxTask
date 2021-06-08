@@ -8,21 +8,20 @@
 
 import UIKit
 
-struct ResponseModel : Codable {
-    var id: String
-    var author : String
-    var width : Int
-    var height : Int
-    var url : String
-    var download_url : String
+struct FlickrMedia: Codable {
+    let title: String
+    let link: String
+    let media: [String:String]
+    let description: String
+    let tags: String?
 }
 
-struct ImageDetails {
-    var name: String
-    var width : Int
-    var height : Int
-    var details : String
-    var downloadurl : String
+struct FlickrInfo {
+    let title: String
+    let link: String
+    let media: [String:String]
+    let description: String
+    let tags: String?
     var type: ImageType
 }
 
